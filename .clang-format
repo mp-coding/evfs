@@ -1,0 +1,22 @@
+---
+BasedOnStyle: WebKit
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignTrailingComments: true
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: Always
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: true
+ColumnLimit: 200
+Cpp11BracedListStyle: true
+FixNamespaceComments: true
+NamespaceIndentation: All
+Standard: c++20
+TabWidth: 4
+UseTab: Never
+SortIncludes: Never
+
+...
