@@ -11,7 +11,7 @@
 
 #include <sys/statvfs.h>
 #include <sys/stat.h>
-#include <sys/syslimits.h>
+#include <climits>
 #include <cerrno>
 #include <cstring>
 

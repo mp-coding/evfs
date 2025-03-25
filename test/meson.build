@@ -3,7 +3,7 @@ catch2_with_main_dep = catch2.get_variable('catch2_with_main_dep')
 catch2_dep = catch2.get_variable('catch2_dep')
 
 test_common = library('test-common',
-                      sources : ['common/ram_blkdev.cpp', 'common/FilesystemUndertest.cpp'],
+                      sources : ['common/ram_blkdev.cpp', 'common/FilesystemUnderTest.cpp'],
                       include_directories : '',
                       dependencies : [evfs_dep],
 )

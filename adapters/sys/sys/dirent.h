@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sys/types.h>
-#include <sys/syslimits.h>
+#include <limits.h>
 
 #define _DIRENT_HAVE_D_TYPE
 

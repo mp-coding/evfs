@@ -8,7 +8,6 @@ project('evfs', 'cpp', 'c',
                            'b_staticpic=false',
                            'b_pie=false',
                            'b_lundef=false', 'build.b_lundef=false',
-                           meson.is_cross_build() ? 'b_sanitize=none' : 'b_sanitize=address,undefined',
                            'werror=true',
                            'build.werror=true',
         ])

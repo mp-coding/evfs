@@ -1,7 +1,7 @@
 #include "ram_blkdev.hpp"
 
-#include <memory>
 #include <cassert>
+#include <cstring>
 
 namespace vfs::tests {
     RAMBlockDevice::RAMBlockDevice(const std::size_t total_size)

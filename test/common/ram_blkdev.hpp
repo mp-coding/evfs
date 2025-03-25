@@ -2,6 +2,8 @@
 
 #include <vfs/blockdev.hpp>
 
+#include <memory>
+
 namespace vfs::tests {
 
     class RAMBlockDevice : public BlockDevice {
