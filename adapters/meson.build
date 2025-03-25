@@ -17,18 +17,18 @@ endif
 libvfs_syscalls = library('vfs_syscalls',
                           sources : _src,
                           include_directories : _inc,
-                          dependencies : libvfs_dep,
+                          dependencies : vfs_dep,
 )
 
-libvfs_syscalls_dep = declare_dependency(
+vfs_syscalls_dep = declare_dependency(
     link_with : libvfs_syscalls,
     include_directories : _inc_pub)
 
 
 libvfs_syscalls_newlib = library('vfs_syscalls_newlib', sources : ['newlib/syscalls.cpp'],
-                                 dependencies : [libvfs_syscalls_dep])
+                                 dependencies : [vfs_syscalls_dep])
 
-libvfs_syscalls_newlib_dep = declare_dependency(link_whole : libvfs_syscalls_newlib)
+vfs_syscalls_newlib_dep = declare_dependency(link_whole : libvfs_syscalls_newlib)
 
 
 

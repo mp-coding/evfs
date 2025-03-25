@@ -6,11 +6,6 @@
 #include <ext4_mkfs.h>
 #include "fstypes/handle/lwext4_handle.hpp"
 
-#include <ff.h>
-#include "fstypes/handle/fatfs_handle.hpp"
-
-
-
 namespace vfs::tools::mkfs {
 
     std::error_code mkext(Partition& part, const ext_params& params, const ext_type type)
@@ -46,12 +41,5 @@ namespace vfs::tools::mkfs {
         return from_errno(ext4_mkfs(&fs, &ctx.get_blockdev(), &info, fs_type));
     }
 
-    std::error_code mkfat(Disk& d)
-    {
-        constexpr auto work_buffer_size = 4096;
-        fatfs_handle   ctx {d};
-        auto           work_buffer = std::make_unique<std::uint8_t[]>(work_buffer_size);
-        const auto     ret         = f_mkfs("", nullptr, work_buffer.get(), work_buffer_size);
-        return ret == FR_OK ? std::error_code {} : from_errno(EIO);
-    }
+    std::error_code mkfat(Disk&) { return from_errno(ENOTSUP); }
 } // namespace vfs::tools::mkfs

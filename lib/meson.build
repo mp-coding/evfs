@@ -1,6 +1,5 @@
 subdir('config')
 subdir('third-party/lwext4')
-subdir('third-party/fatfs')
 
 _inc = include_directories(['.','api'])
 
@@ -14,12 +13,11 @@ src = [
     'tools/mkfs.cpp',
     'fstypes/filesystem.cpp',
     'fstypes/handle/lwext4_handle.cpp',
-    'fstypes/handle/fatfs_handle.cpp',
     'fstypes/filesystem_lwext4.cpp',
 ]
 
 deps_public = []
-deps_private = [lwext4_dep, libfatfs_dep]
+deps_private = [lwext4_dep]
 
 c_opt_args = ['-Wno-psabi']
 
@@ -31,7 +29,7 @@ libvfs = library('vfs',
                  cpp_args : c_opt_args
 )
 
-libvfs_dep = declare_dependency(
+vfs_dep = declare_dependency(
     link_with : libvfs,
     include_directories : ['api'],
     dependencies : deps_public

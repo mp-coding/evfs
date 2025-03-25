@@ -6,8 +6,3 @@ inc = include_directories('.')
 lwext4_config_dep = declare_dependency(
     include_directories: inc
     )
-
-# Adds fatfs configuration header
-fatfs_config_dep = declare_dependency(
-    include_directories: inc
-    )
