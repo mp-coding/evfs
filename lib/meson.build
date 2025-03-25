@@ -21,7 +21,7 @@ deps_private = [lwext4_dep]
 
 c_opt_args = ['-Wno-psabi']
 
-libvfs = library('vfs',
+libevfs = library('evfs',
                  sources : src,
                  include_directories : _inc,
                  dependencies : [deps_public, deps_private],
@@ -29,8 +29,8 @@ libvfs = library('vfs',
                  cpp_args : c_opt_args
 )
 
-vfs_dep = declare_dependency(
-    link_with : libvfs,
+evfs_dep = declare_dependency(
+    link_with : libevfs,
     include_directories : ['api'],
     dependencies : deps_public
 )

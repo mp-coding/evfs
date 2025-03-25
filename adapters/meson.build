@@ -14,21 +14,21 @@ else
     _src = [_src, 'fs_dir.cpp']
 endif
 
-libvfs_syscalls = library('vfs_syscalls',
+libevfs_syscalls = library('evfs_syscalls',
                           sources : _src,
                           include_directories : _inc,
-                          dependencies : vfs_dep,
+                          dependencies : evfs_dep,
 )
 
-vfs_syscalls_dep = declare_dependency(
-    link_with : libvfs_syscalls,
+evfs_syscalls_dep = declare_dependency(
+    link_with : libevfs_syscalls,
     include_directories : _inc_pub)
 
 
-libvfs_syscalls_newlib = library('vfs_syscalls_newlib', sources : ['newlib/syscalls.cpp'],
-                                 dependencies : [vfs_syscalls_dep])
+libevfs_syscalls_newlib = library('evfs_syscalls_newlib', sources : ['newlib/syscalls.cpp'],
+                                 dependencies : [evfs_syscalls_dep])
 
-vfs_syscalls_newlib_dep = declare_dependency(link_whole : libvfs_syscalls_newlib)
+evfs_syscalls_newlib_dep = declare_dependency(link_whole : libevfs_syscalls_newlib)
 
 
 

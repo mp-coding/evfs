@@ -1,4 +1,4 @@
-project('vfs', 'cpp', 'c',
+project('evfs', 'cpp', 'c',
         version : '1.0.0',
         default_options : ['warning_level=2',
                            'c_std=c2x', 'build.c_std=c2x',

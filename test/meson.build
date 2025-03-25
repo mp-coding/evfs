@@ -5,13 +5,13 @@ catch2_dep = catch2.get_variable('catch2_dep')
 test_common = library('test-common',
                       sources : ['common/ram_blkdev.cpp', 'common/FilesystemUndertest.cpp'],
                       include_directories : '',
-                      dependencies : [vfs_dep],
+                      dependencies : [evfs_dep],
 )
 
 test_common_dep = declare_dependency(
     link_with : test_common,
     include_directories : 'common',
-    dependencies : vfs_dep
+    dependencies : evfs_dep
 )
 
 fd_test = executable('FileDescriptors', 'fd_test.cpp', dependencies : [test_common_dep, catch2_with_main_dep])
@@ -30,7 +30,7 @@ test('VFS', vfs_test)
 #test('Multithreading', mt_test)
 #
 syscalls_test = executable('Syscalls', 'syscalls_test.cpp',
-                           dependencies : [test_common_dep, catch2_with_main_dep, vfs_syscalls_dep]
+                           dependencies : [test_common_dep, catch2_with_main_dep, evfs_syscalls_dep]
 
 )
 test('Syscalls', syscalls_test)
