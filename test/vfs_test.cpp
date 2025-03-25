@@ -17,143 +17,107 @@ using namespace vfs::tests;
 TEST_CASE("register/unregister filesystem")
 {
     auto dmgr = vfs::DiskManager {};
-    auto vfs  = vfs::VirtualFS {dmgr};
+    auto vfs  = vfs::VirtualFS {dmgr, std::make_unique<Stream>()};
 
-    REQUIRE(vfs.register_filesystem(vfs::fstype::linux).value() == 0);
+    REQUIRE(vfs.register_filesystem(vfs::fstype::ext4).value() == 0);
     REQUIRE(vfs.register_filesystem(vfs::fstype::Type {"custom"}, {}).value() == 0);
 
     /// Try to register filesystem that was already registered
-    REQUIRE(vfs.register_filesystem(vfs::fstype::linux).value() == EEXIST);
+    REQUIRE(vfs.register_filesystem(vfs::fstype::ext4).value() == EEXIST);
     REQUIRE(vfs.register_filesystem(vfs::fstype::Type {"custom"}, {}).value() == EEXIST);
 
     /// Try to unregister non registered filesystem
-    REQUIRE(vfs.unregister_filesystem(vfs::fstype::fat).value() == ENOENT);
-    REQUIRE(vfs.unregister_filesystem(vfs::fstype::linux).value() == 0);
+    REQUIRE(vfs.unregister_filesystem(vfs::fstype::vfat).value() == ENOENT);
+    REQUIRE(vfs.unregister_filesystem(vfs::fstype::ext4).value() == 0);
 }
 
-TEST_CASE("mount/unmount")
+TEST_CASE("mount-all/umount-all")
 {
-    SECTION("auto-mount without registered block device")
+    SECTION("no registered block device")
     {
         auto dmgr = vfs::DiskManager {};
-        auto vfs  = vfs::VirtualFS {dmgr};
+        auto vfs  = vfs::VirtualFS {dmgr, std::make_unique<Stream>()};
 
-        REQUIRE(vfs.mount().value() == ENOTBLK);
+        REQUIRE(vfs.mount_all().value() == ENOTBLK);
     }
 
-    SECTION("auto-mount disk that does not contain valid partitions")
+    SECTION("disk that doesn't contain valid partitions")
     {
         auto dmgr       = vfs::DiskManager {};
         auto ram_blkdev = std::make_unique<RAMBlockDevice>(1024);
         REQUIRE(dmgr.register_device(*ram_blkdev));
-        auto _vfs = vfs::VirtualFS {dmgr};
+        auto vfs = vfs::VirtualFS {dmgr, std::make_unique<Stream>()};
 
-        REQUIRE(_vfs.mount().value() == 0);
+        REQUIRE(vfs.mount_all().value() == 0);
     }
 
-    SECTION("mount specific partition")
+    SECTION("success")
     {
-        SECTION("no valid partition")
-        {
-            auto dmgr       = vfs::DiskManager {};
-            auto ram_blkdev = std::make_unique<RAMBlockDevice>(1024);
-            REQUIRE(dmgr.register_device(*ram_blkdev));
-            auto vfs = vfs::VirtualFS {dmgr};
+        auto       fsut      = ext4UnderTest::Builder {}.create();
+        const auto part_name = fsut->get_disk().borrow_partition(0)->get_name();
 
-            REQUIRE(vfs.mount(ram_blkdev->get_name() + "p0", "/root", vfs::Flags {}).value() == EINVAL);
-        }
+        REQUIRE(fsut->get().mount_all().value() == 0);
+        REQUIRE(fsut->get().umount_all().value() == 0);
+        REQUIRE(fsut->get().get_roots().empty());
+    }
+}
 
-        SECTION("success")
-        {
-            auto       fsut      = ext4UnderTest::Builder {}.create();
-            const auto part_name = fsut->get_disk().borrow_partition(0)->get_name();
+TEST_CASE("mount/umount")
+{
+    SECTION("non-existent or wrong disk name")
+    {
+        auto dmgr = vfs::DiskManager {};
+        auto vfs  = vfs::VirtualFS {dmgr, std::make_unique<Stream>()};
 
-            SECTION("empty root")
-            {
-                /// Partition label will be used to construct mount point. If not available, mount point will be generated
-                REQUIRE(fsut->get().mount(part_name, {}, {}).value() == 0);
+        REQUIRE(vfs.mount("/wrongdisk", "/", {}).value() == EINVAL);
+        REQUIRE(vfs.mount("", "/", {}).value() == EINVAL);
 
-                /// Try to mount already mounted partition
-                REQUIRE(fsut->get().mount(part_name, {}, {}).value() == EEXIST);
-
-                /// Check mounted partition stats
-                const auto parts = fsut->get().stat_parts();
-                REQUIRE(parts.size() == 1);
-                REQUIRE(parts[0].disk_name == part_name);
-                REQUIRE(parts[0].mount_point == test_volume0_name);
-            }
-
-            SECTION("filled root")
-            {
-                /// Partition label will be used to construct mount point. If not available, mount point will be generated
-                REQUIRE(fsut->get().mount(part_name, "/root", {}).value() == 0);
-
-                /// Try to mount already mounted partition
-                REQUIRE(fsut->get().mount(part_name, "/root", {}).value() == EEXIST);
-
-                /// Check mounted partition stats
-                const auto parts = fsut->get().stat_parts();
-                REQUIRE(parts.size() == 1);
-                REQUIRE(parts[0].disk_name == part_name);
-                REQUIRE(parts[0].mount_point == "/root");
-            }
-        }
-
-        SECTION("auto-mount")
-        {
-            SECTION("single partition")
-            {
-                auto       fsut      = ext4UnderTest::Builder {}.create();
-                const auto part_name = fsut->get_disk().borrow_partition(0)->get_name();
-
-                REQUIRE(fsut->get().mount().value() == 0);
-
-                /// Check mounted partition stats
-                const auto parts = fsut->get().stat_parts();
-                REQUIRE(parts.size() == 1);
-                REQUIRE(parts[0].disk_name == part_name);
-                REQUIRE(parts[0].mount_point == test_volume0_name);
-            }
-
-            SECTION("multiple partitions")
-            {
-                auto       fsut       = ext4UnderTest::Builder {}.with_multipartition().create();
-                const auto part0_name = fsut->get_disk().borrow_partition(0)->get_name();
-                const auto part1_name = fsut->get_disk().borrow_partition(1)->get_name();
-
-                REQUIRE(fsut->get().mount().value() == 0);
-
-                /// Check mounted partition stats
-                const auto parts = fsut->get().stat_parts();
-                REQUIRE(parts.size() == 2);
-                REQUIRE(parts[0].disk_name == part1_name);
-                REQUIRE(parts[0].mount_point == test_volume1_name);
-                REQUIRE(parts[1].disk_name == part0_name);
-                REQUIRE(parts[1].mount_point == test_volume0_name);
-            }
-        }
+        REQUIRE(vfs.umount("/wrongroot").value() == EINVAL);
+        REQUIRE(vfs.umount("").value() == EINVAL);
     }
 
-    SECTION("unmount")
+    SECTION("mount")
     {
-        SECTION("no mounted partitions")
-        {
-            auto fsut = ext4UnderTest::Builder {}.create();
-            REQUIRE(fsut->get().unmount().value() == 0);
-        }
+        auto       fsut      = ext4UnderTest::Builder {}.create();
+        const auto part_name = fsut->get_disk().borrow_partition(0)->get_name();
 
+        /// TODO: add support for explicit fs types
+        SECTION("incorrect partition type") { REQUIRE(fsut->get().mount(part_name, "/", "vfat", {}).value() == 0); }
+        SECTION("empty root")
+        {
+            /// Partition label will be used to construct mount point. If not available, mount point will be generated
+            REQUIRE(fsut->get().mount(part_name, {}, {}).value() == 0);
+
+            /// Try to mount already mounted partition
+            REQUIRE(fsut->get().mount(part_name, {}, {}).value() == EEXIST);
+
+            /// Check mounted partition stats
+            const auto parts = fsut->get().stat_parts();
+            REQUIRE(parts.size() == 1);
+            REQUIRE(parts[0].disk_name == part_name);
+            REQUIRE(parts[0].mount_point == test_volume0_name);
+        }
+        SECTION("filled root")
+        {
+            /// Partition label will be used to construct mount point. If not available, mount point will be generated
+            REQUIRE(fsut->get().mount(part_name, "/root", {}).value() == 0);
+
+            /// Try to mount already mounted partition
+            REQUIRE(fsut->get().mount(part_name, "/root", {}).value() == EEXIST);
+
+            /// Check mounted partition stats
+            const auto parts = fsut->get().stat_parts();
+            REQUIRE(parts.size() == 1);
+            REQUIRE(parts[0].disk_name == part_name);
+            REQUIRE(parts[0].mount_point == "/root");
+        }
+    }
+    SECTION("umount")
+    {
         SECTION("by specifying root path")
         {
             auto fsut = ext4UnderTest::Builder {}.set_automount().create();
-            REQUIRE(fsut->get().unmount("/non-existent_root").value() == EINVAL);
-            REQUIRE(fsut->get().unmount(test_volume0_name.string()).value() == 0);
-            REQUIRE(fsut->get().get_roots().empty());
-        }
-
-        SECTION("auto-unmount")
-        {
-            auto fsut = ext4UnderTest::Builder {}.set_automount().create();
-            REQUIRE(fsut->get().unmount().value() == 0);
+            REQUIRE(fsut->get().umount(test_volume0_name.string()).value() == 0);
             REQUIRE(fsut->get().get_roots().empty());
         }
     }
@@ -183,19 +147,3 @@ TEST_CASE("various")
         REQUIRE(not fsut->get().stat(test_volume0_name, st));
     }
 }
-
-#if 0
-TEST_CASE("mount tiny FAT filesystem(~128kB)")
-{
-    auto ctx = prepare_vfat_context(true, 1024 * 128);
-
-    static uint32_t cnt = 0;
-    while (cnt++ < 1024 * 128) {
-        const auto fd = ctx->m_vfs->open("/volume0/w_" + std::to_string(cnt) + ".txt", O_WRONLY | O_CREAT, 0);
-        REQUIRE(fd >= 0);
-        REQUIRE(ctx->m_vfs->write(fd, "test", 4) == 4);
-        REQUIRE(ctx->m_vfs->close(fd) == 0);
-        REQUIRE(ctx->m_vfs->unlink("/volume0/w_" + std::to_string(cnt) + ".txt") == 0);
-    }
-}
-#endif

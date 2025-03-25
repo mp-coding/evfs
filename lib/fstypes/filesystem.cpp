@@ -23,7 +23,7 @@ namespace vfs {
     auto Filesystem::ioctl(const std::filesystem::path&, int, void*) noexcept -> std::error_code { return from_errno(ENOTSUP); }
     auto Filesystem::utimens(const std::filesystem::path&, std::array<timespec, 2>&) noexcept -> std::error_code { return from_errno(ENOTSUP); }
     auto Filesystem::flock(FileHandle&, int) noexcept -> std::error_code { return from_errno(ENOTSUP); }
-    auto Filesystem::isatty(FileHandle&) noexcept -> std::error_code { return from_errno(ENOTSUP); }
+    auto Filesystem::isatty(FileHandle&) noexcept -> result<bool> { return error(ENOTSUP); }
     auto Filesystem::chmod(const std::filesystem::path&, mode_t) noexcept -> std::error_code { return from_errno(ENOTSUP); }
     auto Filesystem::fchmod(FileHandle&, mode_t) noexcept -> std::error_code { return from_errno(ENOTSUP); }
     auto Filesystem::get_label() noexcept -> result<std::string> { return error(ENOTSUP); }

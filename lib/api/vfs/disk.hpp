@@ -11,6 +11,7 @@
 #include "partition.hpp"
 
 #include <vector>
+#include <memory>
 
 namespace vfs {
 
@@ -39,6 +40,6 @@ namespace vfs {
 
         BlockDevice&           device;
         std::vector<Partition> partitions;
-        mutable Mutex          mutex;
+        mutable std::mutex     mutex;
     };
 } // namespace vfs

@@ -57,7 +57,7 @@ namespace vfs {
         virtual auto ioctl(const std::filesystem::path& path, int cmd, void* arg) noexcept -> std::error_code;
         virtual auto utimens(const std::filesystem::path& path, std::array<timespec, 2>& tv) noexcept -> std::error_code;
         virtual auto flock(FileHandle& handle, int cmd) noexcept -> std::error_code;
-        virtual auto isatty(FileHandle& handle) noexcept -> std::error_code;
+        virtual auto isatty(FileHandle& handle) noexcept -> result<bool>;
 
         virtual auto chmod(const std::filesystem::path& path, mode_t mode) noexcept -> std::error_code;
         virtual auto fchmod(FileHandle& handle, mode_t mode) noexcept -> std::error_code;

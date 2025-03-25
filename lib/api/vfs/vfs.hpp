@@ -16,6 +16,7 @@
 #include <string>
 #include <array>
 #include <filesystem>
+#include <vector>
 
 struct statvfs;
 struct stat;
@@ -23,10 +24,11 @@ struct stat;
 namespace vfs {
 
     class DirectoryHandle;
+    class StdStream;
 
     class VirtualFS {
     public:
-        explicit VirtualFS(DiskManager& dmngr);
+        VirtualFS(DiskManager& dmngr, std::unique_ptr<StdStream>&& stream);
         ~VirtualFS();
         VirtualFS(const VirtualFS&)      = delete;
         auto operator=(const VirtualFS&) = delete;
@@ -59,30 +61,31 @@ namespace vfs {
          * process, some can't be mounted. In that case, it tries to mount a next partition from the list.
          * @return 0 in case of success otherwise, an error code
          */
-        std::error_code mount();
+        std::error_code mount_all();
 
         /**
          * Mount a specific partition
          * @param disk_name disk, i.e. 'disk0p0'
          * @param root where to mount partition. It's possible to pass empty string as root. In this case, VFS will create unique root directory based either on
          * partition's label or predefined prefix, e.g. '/volumeX' where X is a unique number.
+         * @param fstype filesystem type(e.g., 'ext4', 'ext3','vfat'). Pass empty string to detect type automatically.
          * @param flags optional mount flags
          * @return 0 in case of success otherwise, an error code
          */
-        std::error_code mount(std::string_view disk_name, std::string root, Flags flags = 0);
+        std::error_code mount(std::string_view disk_name, std::string root, std::string fstype, Flags flags = 0);
 
         /**
          * Un-mount all partitions
          * @return 0 in case of success otherwise, an error code
          */
-        std::error_code unmount();
+        std::error_code umount_all();
 
         /**
          * Un-mount specified partition by its mount point directory
          * @param mount_point directory where a partition is mounted
          * @return 0 in case of success otherwise, an error code
          */
-        std::error_code unmount(std::string_view mount_point);
+        std::error_code umount(std::string_view mount_point);
 
         /**
          * Fetch list of root paths associated with mount points
@@ -129,7 +132,7 @@ namespace vfs {
         auto ioctl(const std::filesystem::path& path, int cmd, void* arg) noexcept -> std::error_code;
         auto utimens(const std::filesystem::path& path, std::array<timespec, 2>& tv) noexcept -> std::error_code;
         auto flock(int fd, int cmd) noexcept -> std::error_code;
-        auto isatty(int fd) noexcept -> std::error_code;
+        auto isatty(int fd) noexcept -> result<bool>;
 
         auto chmod(const std::filesystem::path& path, mode_t mode) noexcept -> std::error_code;
         auto fchmod(int fd, mode_t mode) noexcept -> std::error_code;

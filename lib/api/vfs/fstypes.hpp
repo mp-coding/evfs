@@ -9,8 +9,10 @@
 
 #include "tools/mbr_partition.hpp"
 
+#include <vector>
 #include <string>
 #include <utility>
+#include <cstdint>
 
 namespace vfs::fstype {
     struct Type {
@@ -21,14 +23,17 @@ namespace vfs::fstype {
         {
         }
 
+        ~Type() { }
+
         bool operator==(const Type& oth) const { return this->name == oth.name; }
 
         std::string               name;
         std::vector<std::uint8_t> codes;
     };
 
-    const inline auto linux = Type {"linux", tools::partition_code::linux};
-    const inline auto fat   = Type {"fat", tools::partition_code::vfat12, tools::partition_code::vfat16, tools::partition_code::vfat32};
+    const inline auto ext4 = Type {"ext4", tools::partition_code::linux};
+    const inline auto ext3 = Type {"ext3", tools::partition_code::linux};
+    const inline auto vfat = Type {"vfat", tools::partition_code::vfat12, tools::partition_code::vfat16, tools::partition_code::vfat32};
 
 } // namespace vfs::fstype
 

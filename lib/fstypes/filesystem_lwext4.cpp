@@ -11,6 +11,7 @@
 
 #include <sys/statvfs.h>
 #include <sys/stat.h>
+#include <sys/syslimits.h>
 #include <cerrno>
 #include <cstring>
 
@@ -289,6 +290,8 @@ namespace vfs {
         if (err == EOK) { ext4_mtime_set(from(handle).get_path().c_str(), get_posix_time()); }
         return from_errno(err);
     }
+
+    result<bool> filesystem_lwext4::isatty(FileHandle&) noexcept { return false; }
 
     auto filesystem_lwext4::ftruncate(FileHandle& handle, off_t len) noexcept -> std::error_code
     {

@@ -37,7 +37,7 @@ namespace vfs {
         {
         }
 
-        locked<ValueT, Mutex> lock() { return {value, mutex}; }
+        locked<ValueT, MutexT> lock() { return {value, mutex}; }
 
     private:
         ValueT value;

@@ -44,11 +44,15 @@ namespace vfs {
         auto chmod(const std::filesystem::path& path, mode_t mode) noexcept -> std::error_code override;
         auto fchmod(FileHandle& handle, mode_t mode) noexcept -> std::error_code override;
 
+        auto isatty(FileHandle& handle) noexcept -> result<bool> override;
+
         auto get_label() noexcept -> result<std::string> override;
 
     private:
         auto _stat(const std::filesystem::path& path, struct stat* st) noexcept -> std::error_code;
 
+
+    private:
         BlockDevice&  m_blockdev;
         Flags         m_flags;
         lwext4_handle m_handle;

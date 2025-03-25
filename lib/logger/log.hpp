@@ -1,6 +1,6 @@
 #pragma once
 
-#include "logger.hpp"
+#include "vfs/logger.hpp"
 
 namespace vfs {
     template <typename... Args> void log_debug(Args&&... args) { logger::internal::_log(logger::level::debug, args...); }

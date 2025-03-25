@@ -7,38 +7,15 @@
 
 #pragma once
 
-#include <cstdint>
 #include <bitset>
 #include <mutex>
-#include <pthread.h>
-#include <cassert>
 #include <system_error>
 #include <expected>
 
 namespace vfs {
     template <typename T> using result = std::expected<T, std::error_code>;
 
-    class Mutex {
-    public:
-        Mutex()
-        {
-            pthread_mutexattr_t mta;
-            pthread_mutexattr_init(&mta);
-            pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_RECURSIVE);
-            [[maybe_unused]] const auto ret = pthread_mutex_init(&m_lock, &mta);
-            assert(ret == 0);
-        }
-        ~Mutex() { pthread_mutex_destroy(&m_lock); }
-
-        void lock() { pthread_mutex_lock(&m_lock); }
-        void unlock() { pthread_mutex_unlock(&m_lock); }
-        bool try_lock() { return pthread_mutex_trylock(&m_lock) == 0; }
-
-    private:
-        pthread_mutex_t m_lock {};
-    };
-
-    using auto_lock = std::lock_guard<Mutex>;
+    using auto_lock = std::lock_guard<std::mutex>;
 
     struct MountFlags {
         enum {

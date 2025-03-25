@@ -1,4 +1,4 @@
-#include "logger.hpp"
+#include "vfs/logger.hpp"
 
 namespace vfs::logger {
     output_handler_t g_write_output{};

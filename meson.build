@@ -1,6 +1,6 @@
-project('vfs', 'cpp','c',
+project('vfs', 'cpp', 'c',
         version : '1.0.0',
-        default_options : ['warning_level=3',
+        default_options : ['warning_level=2',
                            'c_std=c99', 'build.c_std=c99',
                            'cpp_std=c++23', 'build.cpp_std=c++23',
                            'default_library=static',
@@ -11,7 +11,7 @@ project('vfs', 'cpp','c',
                            meson.is_cross_build() ? 'b_sanitize=none' : 'b_sanitize=address,undefined',
                            'werror=true',
                            'build.werror=true',
-])
+        ])
 
 
 if build_machine.system() == 'darwin'
@@ -20,7 +20,9 @@ else
     add_project_link_arguments('-Wl,--gc-sections', language : ['c', 'cpp'])
 endif
 
-catch2 = subproject('catch2', default_options : ['tests=false'])
-
 subdir('lib')
-subdir('test')
+subdir('adapters')
+# Enable and build unit tests only if configured as standalone project
+if not meson.is_subproject()
+    subdir('test')
+endif

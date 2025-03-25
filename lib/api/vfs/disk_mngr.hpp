@@ -35,7 +35,7 @@ namespace vfs {
 
     private:
         std::unordered_map<std::string, std::unique_ptr<Disk>> m_disk_map;
-        Mutex                                                  m_lock;
+        std::mutex                                             m_lock;
     };
 
 } // namespace vfs

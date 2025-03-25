@@ -10,9 +10,17 @@
 #include <vfs/vfs.hpp>
 #include <vfs/tools/fdisk.hpp>
 #include <vfs/tools/mkfs.hpp>
+#include <vfs/stdstream.hpp>
 #include "ram_blkdev.hpp"
 
 namespace vfs::tests {
+
+    class Stream : public StdStream {
+    public:
+        result<std::size_t> in(std::span<char> data) override;
+        result<std::size_t> out(std::span<const char> data) override;
+        result<std::size_t> err(std::span<const char> data) override;
+    };
 
     class FilesystemUnderTest {
     public:

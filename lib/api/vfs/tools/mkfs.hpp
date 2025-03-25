@@ -10,6 +10,7 @@
 #include <string>
 #include <array>
 #include <system_error>
+#include <cstdint>
 
 namespace vfs {
     class Partition;

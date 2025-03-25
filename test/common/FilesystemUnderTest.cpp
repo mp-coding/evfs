@@ -12,6 +12,25 @@
 
 namespace vfs::tests {
 
+    result<std::size_t> Stream::in(std::span<char> data)
+    {
+        const auto ret = fread(data.data(), 1, data.size(), stdin);
+        if (ret != data.size()) { return error(ferror(stdin)); }
+        return ret;
+    }
+    result<std::size_t> Stream::out(std::span<const char> data)
+    {
+        const auto ret = fwrite(data.data(), 1, data.size(), stdout);
+        if (ret != data.size()) { return error(ferror(stdout)); }
+        return ret;
+    }
+    result<std::size_t> Stream::err(std::span<const char> data)
+    {
+        const auto ret = fwrite(data.data(), 1, data.size(), stderr);
+        if (ret != data.size()) { return error(ferror(stderr)); }
+        return ret;
+    }
+
     VirtualFS& FilesystemUnderTest::get() const { return *vfs; }
     VirtualFS& FilesystemUnderTest::operator->() { return *vfs; }
     Disk&      FilesystemUnderTest::get_disk() const { return *disk; }
@@ -45,17 +64,20 @@ namespace vfs::tests {
             mkext(*spart, layout::partition_1_ext, tools::mkfs::ext_type::ext4);
         }
 
-        instance->vfs = std::make_unique<VirtualFS>(*instance->disk_mngr);
-        std::ignore   = instance->vfs->register_filesystem(fstype::linux);
-        if (automount) { instance->vfs->mount(); }
+        instance->vfs = std::make_unique<VirtualFS>(*instance->disk_mngr, std::make_unique<Stream>());
+        std::ignore   = instance->vfs->register_filesystem(fstype::ext4);
+        if (automount) {
+
+            if (instance->vfs->mount_all()) { throw std::runtime_error {"Failed to mount filesystem"}; }
+        }
 
         return instance;
     }
     void ext4UnderTest::reload()
     {
-        vfs         = std::make_unique<VirtualFS>(*disk_mngr);
-        std::ignore = vfs->register_filesystem(fstype::linux);
-        std::ignore = vfs->mount();
+        vfs         = std::make_unique<VirtualFS>(*disk_mngr, std::make_unique<Stream>());
+        std::ignore = vfs->register_filesystem(fstype::ext4);
+        std::ignore = vfs->mount_all();
     }
 
 } // namespace vfs::tests
