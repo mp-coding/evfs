@@ -21,7 +21,7 @@ src = [
 deps_public = []
 deps_private = [lwext4_dep, libfatfs_dep]
 
-c_opt_args = ['-Wno-psabi', '-Wno-c99-extensions']
+c_opt_args = ['-Wno-psabi']
 
 libvfs = library('vfs',
                  sources : src,

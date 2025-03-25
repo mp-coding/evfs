@@ -1,7 +1,7 @@
 project('vfs', 'cpp', 'c',
         version : '1.0.0',
         default_options : ['warning_level=2',
-                           'c_std=c99', 'build.c_std=c99',
+                           'c_std=c2x', 'build.c_std=c2x',
                            'cpp_std=c++23', 'build.cpp_std=c++23',
                            'default_library=static',
                            'b_pch=false',

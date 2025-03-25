@@ -55,23 +55,23 @@ int _chdir_r(_reent* r, const char* path) { return syscalls::chdir(r->_errno, pa
 int _rename_r(_reent* r, const char* oldName, const char* newName) { return syscalls::rename(r->_errno, oldName, newName); }
 int _mkdir_r(_reent* r, const char* path, int mode) { return syscalls::mkdir(r->_errno, path, mode); }
 
-int     open(const char* file, int flags, int mode) { return _open_r(_REENT, file, flags, mode); }
-int     close(int fd) { return _close_r(_REENT, fd); }
-ssize_t write(int fd, const void* buf, size_t cnt) { return _write_r(_REENT, fd, buf, cnt); }
-ssize_t read(int fd, void* buf, size_t cnt) { return _read_r(_REENT, fd, buf, cnt); }
-off_t   lseek(int fd, off_t pos, int dir) { return _lseek_r(_REENT, fd, pos, dir); }
-int     fstat(int fd, struct stat* st) { return _fstat_r(_REENT, fd, st); }
-int     stat(const char* file, struct stat* pstat) { return _stat_r(_REENT, file, pstat); }
-int     isatty(int fd) { return _isatty_r(_REENT, fd); }
-int     fcntlr(int fd, int op, int arg) { return _fcntl_r(_REENT, fd, op, arg); }
-int     statvfs(const char* path, struct statvfs* buf) { return _statvfs_r(_REENT, path, buf); }
-int     fsync(int fd) { return _fsync_r(_REENT, fd); }
-int     link(const char* existing, const char* newLink) { return _link_r(_REENT, existing, newLink); }
-int     unlink(const char* name) { return _unlink_r(_REENT, name); }
+int     _open(const char* file, int flags, int mode) { return _open_r(_REENT, file, flags, mode); }
+int     _close(int fd) { return _close_r(_REENT, fd); }
+ssize_t _write(int fd, const void* buf, size_t cnt) { return _write_r(_REENT, fd, buf, cnt); }
+ssize_t _read(int fd, void* buf, size_t cnt) { return _read_r(_REENT, fd, buf, cnt); }
+off_t   _lseek(int fd, off_t pos, int dir) { return _lseek_r(_REENT, fd, pos, dir); }
+int     _fstat(int fd, struct stat* st) { return _fstat_r(_REENT, fd, st); }
+int     _stat(const char* file, struct stat* pstat) { return _stat_r(_REENT, file, pstat); }
+int     _isatty(int fd) { return _isatty_r(_REENT, fd); }
+int     _fcntlr(int fd, int op, int arg) { return _fcntl_r(_REENT, fd, op, arg); }
+int     _statvfs(const char* path, struct statvfs* buf) { return _statvfs_r(_REENT, path, buf); }
+int     _fsync(int fd) { return _fsync_r(_REENT, fd); }
+int     _link(const char* existing, const char* newLink) { return _link_r(_REENT, existing, newLink); }
+int     _unlink(const char* name) { return _unlink_r(_REENT, name); }
+int     _rename(const char* old_name, const char* new_name) { return _rename_r(_REENT, old_name, new_name); }
+int     _mkdir(const char* path, mode_t mode) { return _mkdir_r(_REENT, path, mode); }
 int     rmdir(const char* name) { return _rmdir_r(_REENT, name); }
 int     chdir(const char* path) { return _chdir_r(_REENT, path); }
-int     rename(const char* old_name, const char* new_name) { return _rename_r(_REENT, old_name, new_name); }
-int     mkdir(const char* path, mode_t mode) { return _mkdir_r(_REENT, path, mode); }
 
 DIR*           opendir(const char* dirname) { return syscalls::opendir(_REENT->_errno, dirname); }
 int            closedir(DIR* dirp) { return syscalls::closedir(_REENT->_errno, dirp); }
